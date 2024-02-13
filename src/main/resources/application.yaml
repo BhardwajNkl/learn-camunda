@@ -1,0 +1,5 @@
+server:
+  port: 9192
+camunda.bpm.admin-user:
+  id: nikhil
+  password: bhardwaj
