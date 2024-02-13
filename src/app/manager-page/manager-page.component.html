@@ -1,0 +1,34 @@
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-2">
+
+        </div>
+        <div class="col-8">
+            <h6>Pending Application List</h6>
+            <table>
+                <tr>
+                    <th>emp_id</th>
+                    <th>Days Requested</th>
+                    <th>status</th>
+                    <th>actions</th>
+                </tr>
+               
+                <ng-container *ngFor="let leaveApplication of leaveApplicationList">
+                    <tr *ngIf="leaveApplication.status == 'PENDING'">
+                      <td>{{leaveApplication.empId}}</td>  
+                      <td>{{leaveApplication.leavesRequested}}</td>  
+                      <td>{{leaveApplication.status}}</td>
+                      <td>
+                          <button class="btn btn-sm btn-primary" (click)="sendManagerResponse(leaveApplication.leaveId, true)">approve</button>
+                          <button class="btn btn-sm btn-danger ms-2" (click)="sendManagerResponse(leaveApplication.leaveId, false)">reject</button>
+                      </td>                
+                    </tr>
+                  </ng-container>
+                  
+            </table>
+        </div>
+        <div class="col-2">
+
+        </div>
+    </div>
+</div>
