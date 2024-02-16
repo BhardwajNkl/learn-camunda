@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1onbzw9" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.19.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.20.0">
+  <bpmn:process id="camundaCommunication" name="camunda communication" isExecutable="true" camunda:historyTimeToLive="180">
+    <bpmn:startEvent id="someoneDroppedAMessage" name="someone dropped a message">
+      <bpmn:outgoing>Flow_14mkxu7</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0sf6kac" messageRef="Message_22v5b6u" />
+    </bpmn:startEvent>
+    <bpmn:userTask id="readMessage" name="read message">
+      <bpmn:incoming>Flow_14mkxu7</bpmn:incoming>
+      <bpmn:outgoing>Flow_0aixat5</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_14mkxu7" sourceRef="someoneDroppedAMessage" targetRef="readMessage" />
+    <bpmn:eventBasedGateway id="Gateway_0q3daq7" name="event gateway">
+      <bpmn:incoming>Flow_0aixat5</bpmn:incoming>
+      <bpmn:outgoing>Flow_134uxwg</bpmn:outgoing>
+      <bpmn:outgoing>Flow_160is5k</bpmn:outgoing>
+      <bpmn:outgoing>Flow_03wcupl</bpmn:outgoing>
+    </bpmn:eventBasedGateway>
+    <bpmn:sequenceFlow id="Flow_0aixat5" sourceRef="readMessage" targetRef="Gateway_0q3daq7" />
+    <bpmn:intermediateCatchEvent id="iLikeIt" name="i like it">
+      <bpmn:incoming>Flow_134uxwg</bpmn:incoming>
+      <bpmn:outgoing>Flow_1rootgx</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0h1q3w7" messageRef="Message_1db70j1" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="Flow_134uxwg" sourceRef="Gateway_0q3daq7" targetRef="iLikeIt" />
+    <bpmn:intermediateCatchEvent id="iDislikeIt" name="i dislike it">
+      <bpmn:incoming>Flow_160is5k</bpmn:incoming>
+      <bpmn:outgoing>Flow_0loafot</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1y2bur3" messageRef="Message_0n7etap" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="Flow_160is5k" sourceRef="Gateway_0q3daq7" targetRef="iDislikeIt" />
+    <bpmn:intermediateCatchEvent id="iWantToReply" name="i want to reply">
+      <bpmn:incoming>Flow_03wcupl</bpmn:incoming>
+      <bpmn:outgoing>Flow_0mhv3ow</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0rj4nas" messageRef="Message_2lrhtql" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="Flow_03wcupl" sourceRef="Gateway_0q3daq7" targetRef="iWantToReply" />
+    <bpmn:serviceTask id="likeMessageTask" name="like message task" camunda:class="com.bhardwaj.workflow.tasks.LikeMessage">
+      <bpmn:incoming>Flow_1rootgx</bpmn:incoming>
+      <bpmn:outgoing>Flow_066u38n</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1rootgx" sourceRef="iLikeIt" targetRef="likeMessageTask" />
+    <bpmn:serviceTask id="dislikeMessageTask" name="dislike message task" camunda:class="com.bhardwaj.workflow.tasks.DislikeMessage">
+      <bpmn:incoming>Flow_0loafot</bpmn:incoming>
+      <bpmn:outgoing>Flow_001djs0</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0loafot" sourceRef="iDislikeIt" targetRef="dislikeMessageTask" />
+    <bpmn:userTask id="sendReplyTask" name="send reply task">
+      <bpmn:incoming>Flow_0mhv3ow</bpmn:incoming>
+      <bpmn:outgoing>Flow_0mjzl9f</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0mhv3ow" sourceRef="iWantToReply" targetRef="sendReplyTask" />
+    <bpmn:endEvent id="Event_1j4tq54" name="end">
+      <bpmn:incoming>Flow_0mjzl9f</bpmn:incoming>
+      <bpmn:incoming>Flow_066u38n</bpmn:incoming>
+      <bpmn:incoming>Flow_001djs0</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0mjzl9f" sourceRef="sendReplyTask" targetRef="Event_1j4tq54" />
+    <bpmn:sequenceFlow id="Flow_066u38n" sourceRef="likeMessageTask" targetRef="Event_1j4tq54" />
+    <bpmn:sequenceFlow id="Flow_001djs0" sourceRef="dislikeMessageTask" targetRef="Event_1j4tq54" />
+  </bpmn:process>
+  <bpmn:message id="Message_22v5b6u" name="someoneDroppedAMessage" />
+  <bpmn:message id="Message_2lrhtql" name="iWantToReply" />
+  <bpmn:message id="Message_1db70j1" name="iLikeIt" />
+  <bpmn:message id="Message_0n7etap" name="iDislikeIt" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="camundaCommunication">
+      <bpmndi:BPMNShape id="Event_0fr2ogo_di" bpmnElement="someoneDroppedAMessage">
+        <dc:Bounds x="192" y="252" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="168" y="295" width="89" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_04dx206_di" bpmnElement="readMessage">
+        <dc:Bounds x="280" y="230" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0q3daq7_di" bpmnElement="Gateway_0q3daq7">
+        <dc:Bounds x="435" y="245" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="424" y="302" width="72" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1rt653q_di" bpmnElement="iLikeIt">
+        <dc:Bounds x="542" y="252" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="546" y="295" width="31" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_10xyh1s_di" bpmnElement="iDislikeIt">
+        <dc:Bounds x="542" y="362" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="538" y="405" width="45" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_177vl2b_di" bpmnElement="iWantToReply">
+        <dc:Bounds x="542" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="528" y="185" width="69" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1vj68ip_di" bpmnElement="likeMessageTask">
+        <dc:Bounds x="640" y="230" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0pjwb5b_di" bpmnElement="dislikeMessageTask">
+        <dc:Bounds x="640" y="340" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1vvhoup_di" bpmnElement="sendReplyTask">
+        <dc:Bounds x="640" y="120" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1j4tq54_di" bpmnElement="Event_1j4tq54">
+        <dc:Bounds x="812" y="252" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="821" y="295" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_14mkxu7_di" bpmnElement="Flow_14mkxu7">
+        <di:waypoint x="228" y="270" />
+        <di:waypoint x="280" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0aixat5_di" bpmnElement="Flow_0aixat5">
+        <di:waypoint x="380" y="270" />
+        <di:waypoint x="435" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_134uxwg_di" bpmnElement="Flow_134uxwg">
+        <di:waypoint x="485" y="270" />
+        <di:waypoint x="542" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_160is5k_di" bpmnElement="Flow_160is5k">
+        <di:waypoint x="460" y="295" />
+        <di:waypoint x="460" y="380" />
+        <di:waypoint x="542" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_03wcupl_di" bpmnElement="Flow_03wcupl">
+        <di:waypoint x="460" y="245" />
+        <di:waypoint x="460" y="160" />
+        <di:waypoint x="542" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1rootgx_di" bpmnElement="Flow_1rootgx">
+        <di:waypoint x="578" y="270" />
+        <di:waypoint x="640" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0loafot_di" bpmnElement="Flow_0loafot">
+        <di:waypoint x="578" y="380" />
+        <di:waypoint x="640" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0mhv3ow_di" bpmnElement="Flow_0mhv3ow">
+        <di:waypoint x="578" y="160" />
+        <di:waypoint x="640" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0mjzl9f_di" bpmnElement="Flow_0mjzl9f">
+        <di:waypoint x="740" y="160" />
+        <di:waypoint x="776" y="160" />
+        <di:waypoint x="776" y="270" />
+        <di:waypoint x="812" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_066u38n_di" bpmnElement="Flow_066u38n">
+        <di:waypoint x="740" y="270" />
+        <di:waypoint x="812" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_001djs0_di" bpmnElement="Flow_001djs0">
+        <di:waypoint x="740" y="380" />
+        <di:waypoint x="776" y="380" />
+        <di:waypoint x="776" y="270" />
+        <di:waypoint x="812" y="270" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
