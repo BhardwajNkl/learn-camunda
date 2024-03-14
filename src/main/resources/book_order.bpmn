@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_048d4h2" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.19.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.20.0">
+  <bpmn:process id="bookOrderProcess" name="book_order_process" isExecutable="true" camunda:historyTimeToLive="180">
+    <bpmn:startEvent id="bookOrderReceived" name="book_order_received">
+      <bpmn:outgoing>Flow_0huoyai</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_10orzl1" messageRef="Message_31ftu3f" />
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="validateOrder" name="validate_order" camunda:class="com.bhardwaj.workflow.tasks.ValidateOrder">
+      <bpmn:incoming>Flow_0huoyai</bpmn:incoming>
+      <bpmn:outgoing>Flow_0lbpeou</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0huoyai" sourceRef="bookOrderReceived" targetRef="validateOrder" />
+    <bpmn:boundaryEvent id="invalidOrder" name="invalid_order" attachedToRef="validateOrder">
+      <bpmn:outgoing>Flow_19z1lmu</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_0u7lsuw" errorRef="Error_1htqkbz" camunda:errorCodeVariable="invalidOrder" camunda:errorMessageVariable="invalidOrder" />
+    </bpmn:boundaryEvent>
+    <bpmn:endEvent id="invalidOrderEnd" name="invalid_order_end">
+      <bpmn:incoming>Flow_19z1lmu</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_19z1lmu" sourceRef="invalidOrder" targetRef="invalidOrderEnd" />
+    <bpmn:userTask id="isDeliveryPossible" name="is_delivery_possible">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="canDeliver" label="delivery possible" type="boolean" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0lbpeou</bpmn:incoming>
+      <bpmn:outgoing>Flow_02b82bu</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0lbpeou" sourceRef="validateOrder" targetRef="isDeliveryPossible" />
+    <bpmn:exclusiveGateway id="canDeliver" name="can_deliver">
+      <bpmn:incoming>Flow_02b82bu</bpmn:incoming>
+      <bpmn:outgoing>deliverYes</bpmn:outgoing>
+      <bpmn:outgoing>deliverNo</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_02b82bu" sourceRef="isDeliveryPossible" targetRef="canDeliver" />
+    <bpmn:serviceTask id="Activity_1cff7ce" name="check_availability" camunda:class="com.bhardwaj.workflow.tasks.CheckAvailability">
+      <bpmn:incoming>deliverYes</bpmn:incoming>
+      <bpmn:outgoing>Flow_1bwlpra</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="deliverYes" name="deliver_yes" sourceRef="canDeliver" targetRef="Activity_1cff7ce">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{canDeliver==true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="available" name="available">
+      <bpmn:incoming>Flow_1bwlpra</bpmn:incoming>
+      <bpmn:outgoing>availableYes</bpmn:outgoing>
+      <bpmn:outgoing>availableNo</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1bwlpra" sourceRef="Activity_1cff7ce" targetRef="available" />
+    <bpmn:userTask id="shipBook" name="ship_book">
+      <bpmn:incoming>availableYes</bpmn:incoming>
+      <bpmn:outgoing>Flow_1yvl8fv</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="availableYes" name="available_yes" sourceRef="available" targetRef="shipBook">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{isAvailable==true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="end" name="end">
+      <bpmn:incoming>Flow_1yvl8fv</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1yvl8fv" sourceRef="shipBook" targetRef="end" />
+    <bpmn:startEvent id="cancelBookOrder" name="cancel_book_order">
+      <bpmn:outgoing>Flow_1bcup23</bpmn:outgoing>
+      <bpmn:signalEventDefinition id="SignalEventDefinition_0r724so" signalRef="Signal_3nhcabn" />
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_1bcup23" sourceRef="cancelBookOrder" targetRef="Activity_1dpicjd" />
+    <bpmn:serviceTask id="Activity_1dpicjd" name="cancel_book_order" camunda:class="com.bhardwaj.workflow.tasks.CancelOrder">
+      <bpmn:incoming>Flow_1bcup23</bpmn:incoming>
+      <bpmn:outgoing>Flow_09r1z20</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="cancelOrderEnd" name="cancel_order_end">
+      <bpmn:incoming>Flow_09r1z20</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_09r1z20" sourceRef="Activity_1dpicjd" targetRef="cancelOrderEnd" />
+    <bpmn:serviceTask id="Activity_190dr8b" name="notify_type_cannot_deliver" camunda:class="com.bhardwaj.workflow.tasks.NotifyTypeCannotDeliver">
+      <bpmn:incoming>deliverNo</bpmn:incoming>
+      <bpmn:outgoing>Flow_0n7kis1</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="deliverNo" name="deliver_no" sourceRef="canDeliver" targetRef="Activity_190dr8b">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{canDeliver==false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:callActivity id="cannotDeliverNotification" name="cannot_deliver_notification" calledElement="notifyCustomer">
+      <bpmn:extensionElements>
+        <camunda:in variables="all" />
+        <camunda:out variables="all" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0n7kis1</bpmn:incoming>
+      <bpmn:outgoing>Flow_03bdlg4</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="Flow_0n7kis1" sourceRef="Activity_190dr8b" targetRef="cannotDeliverNotification" />
+    <bpmn:endEvent id="Event_0z6vl5j">
+      <bpmn:incoming>Flow_03bdlg4</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_03bdlg4" sourceRef="cannotDeliverNotification" targetRef="Event_0z6vl5j" />
+    <bpmn:serviceTask id="Activity_1a6hpuq" name="notify_type_unavailable" camunda:class="com.bhardwaj.workflow.tasks.NotifyTypeUnavailability">
+      <bpmn:incoming>availableNo</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ee6kpb</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="availableNo" name="available_no" sourceRef="available" targetRef="Activity_1a6hpuq">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{isAvailable==false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:callActivity id="unavailableNotification" name="unavialable_notification" calledElement="notifyCustomer">
+      <bpmn:extensionElements>
+        <camunda:in variables="all" />
+        <camunda:out variables="all" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1ee6kpb</bpmn:incoming>
+      <bpmn:outgoing>Flow_1xcnah7</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="Flow_1ee6kpb" sourceRef="Activity_1a6hpuq" targetRef="unavailableNotification" />
+    <bpmn:endEvent id="Event_1ul2u2a">
+      <bpmn:incoming>Flow_1xcnah7</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1xcnah7" sourceRef="unavailableNotification" targetRef="Event_1ul2u2a" />
+  </bpmn:process>
+  <bpmn:message id="Message_31ftu3f" name="bookOrderReceived" />
+  <bpmn:error id="Error_1htqkbz" name="invalidOrder" errorCode="invalidOrder" camunda:errorMessage="invalid order" />
+  <bpmn:signal id="Signal_3nhcabn" name="cancelBookOrder" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="bookOrderProcess">
+      <bpmndi:BPMNShape id="Event_0i60uel_di" bpmnElement="bookOrderReceived">
+        <dc:Bounds x="202" y="292" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="178" y="335" width="86" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0a33ekw_di" bpmnElement="validateOrder">
+        <dc:Bounds x="290" y="270" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1olnbmt_di" bpmnElement="invalidOrderEnd">
+        <dc:Bounds x="382" y="412" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="357" y="455" width="88" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_07bkcyl_di" bpmnElement="isDeliveryPossible">
+        <dc:Bounds x="450" y="270" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_07ga0sz_di" bpmnElement="canDeliver" isMarkerVisible="true">
+        <dc:Bounds x="615" y="285" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="611" y="273" width="58" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1cff7ce_di" bpmnElement="Activity_1cff7ce">
+        <dc:Bounds x="730" y="270" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1qzh12b_di" bpmnElement="available" isMarkerVisible="true">
+        <dc:Bounds x="895" y="285" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="898" y="345" width="44" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1mkdlwn_di" bpmnElement="shipBook">
+        <dc:Bounds x="1040" y="270" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0zg3fsm_di" bpmnElement="end">
+        <dc:Bounds x="1242" y="292" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1251" y="335" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1sxm3ao_di" bpmnElement="cancelBookOrder">
+        <dc:Bounds x="202" y="82" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="179" y="125" width="84" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1dpicjd_di" bpmnElement="Activity_1dpicjd">
+        <dc:Bounds x="290" y="60" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1bbf6e8_di" bpmnElement="cancelOrderEnd">
+        <dc:Bounds x="482" y="82" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="459" y="125" width="89" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_190dr8b_di" bpmnElement="Activity_190dr8b">
+        <dc:Bounds x="730" y="380" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_17auehx_di" bpmnElement="cannotDeliverNotification">
+        <dc:Bounds x="900" y="380" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0z6vl5j_di" bpmnElement="Event_0z6vl5j">
+        <dc:Bounds x="1072" y="402" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1a6hpuq_di" bpmnElement="Activity_1a6hpuq">
+        <dc:Bounds x="870" y="120" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1850858_di" bpmnElement="unavailableNotification">
+        <dc:Bounds x="1040" y="120" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1ul2u2a_di" bpmnElement="Event_1ul2u2a">
+        <dc:Bounds x="1242" y="142" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_12s93wy_di" bpmnElement="invalidOrder">
+        <dc:Bounds x="292" y="332" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="318" y="363" width="64" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0huoyai_di" bpmnElement="Flow_0huoyai">
+        <di:waypoint x="238" y="310" />
+        <di:waypoint x="290" y="310" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19z1lmu_di" bpmnElement="Flow_19z1lmu">
+        <di:waypoint x="310" y="368" />
+        <di:waypoint x="310" y="430" />
+        <di:waypoint x="382" y="430" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0lbpeou_di" bpmnElement="Flow_0lbpeou">
+        <di:waypoint x="390" y="310" />
+        <di:waypoint x="450" y="310" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_02b82bu_di" bpmnElement="Flow_02b82bu">
+        <di:waypoint x="550" y="310" />
+        <di:waypoint x="615" y="310" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_027wurv_di" bpmnElement="deliverYes">
+        <di:waypoint x="665" y="310" />
+        <di:waypoint x="730" y="310" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="670" y="292" width="57" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1bwlpra_di" bpmnElement="Flow_1bwlpra">
+        <di:waypoint x="830" y="310" />
+        <di:waypoint x="895" y="310" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1630lgf_di" bpmnElement="availableYes">
+        <di:waypoint x="945" y="310" />
+        <di:waypoint x="1040" y="310" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="960" y="292" width="68" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1yvl8fv_di" bpmnElement="Flow_1yvl8fv">
+        <di:waypoint x="1140" y="310" />
+        <di:waypoint x="1242" y="310" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1bcup23_di" bpmnElement="Flow_1bcup23">
+        <di:waypoint x="238" y="100" />
+        <di:waypoint x="290" y="100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_09r1z20_di" bpmnElement="Flow_09r1z20">
+        <di:waypoint x="390" y="100" />
+        <di:waypoint x="482" y="100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0uggdbb_di" bpmnElement="deliverNo">
+        <di:waypoint x="640" y="335" />
+        <di:waypoint x="640" y="420" />
+        <di:waypoint x="730" y="420" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="644" y="375" width="52" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0n7kis1_di" bpmnElement="Flow_0n7kis1">
+        <di:waypoint x="830" y="420" />
+        <di:waypoint x="900" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_03bdlg4_di" bpmnElement="Flow_03bdlg4">
+        <di:waypoint x="1000" y="420" />
+        <di:waypoint x="1072" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0cyenvd_di" bpmnElement="availableNo">
+        <di:waypoint x="920" y="285" />
+        <di:waypoint x="920" y="200" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="905" y="240" width="63" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ee6kpb_di" bpmnElement="Flow_1ee6kpb">
+        <di:waypoint x="970" y="160" />
+        <di:waypoint x="1040" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1xcnah7_di" bpmnElement="Flow_1xcnah7">
+        <di:waypoint x="1140" y="160" />
+        <di:waypoint x="1242" y="160" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
