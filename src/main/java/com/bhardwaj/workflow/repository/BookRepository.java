@@ -16,7 +16,7 @@ public class BookRepository {
 	}
 	
 	public boolean isAvailable(String bookName) {
-		return this.booksAvaialable.contains(bookName);
+		return this.booksAvaialable.stream().anyMatch((name)->name.equalsIgnoreCase(bookName));
 	}
 	
 	public List<String> getAvailableBooks(){
