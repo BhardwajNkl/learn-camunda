@@ -116,6 +116,8 @@ public class OrderService {
 				this.taskService.complete(task.getId());
 				bookOrder.setStatus("DISPATCHED");
 				this.orderRepository.save(bookOrder);
+			} else {
+				throw new RuntimeException("Cannot ship! Order status: "+bookOrder.getStatus());
 			}
 			
 		} catch (Exception exception) {

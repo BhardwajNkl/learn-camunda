@@ -77,7 +77,12 @@ public class OrderController {
 	}
 	
 	@PostMapping("/ship/{orderId}")
-	public void shipBook(@PathVariable("orderId") int orderId) {
-		this.orderService.shipBook(orderId);
+	public ResponseEntity<?> shipBook(@PathVariable("orderId") int orderId) {
+		try{
+			this.orderService.shipBook(orderId);
+			return ResponseEntity.ok(null);
+		} catch (Exception exception) {
+			return ResponseEntity.internalServerError().body(exception.getMessage());
+		}
 	}
 }
