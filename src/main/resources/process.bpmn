@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0eot7lm" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.19.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.20.0">
+  <bpmn:process id="demo_process" name="demo_process" isExecutable="true" camunda:versionTag="2" camunda:historyTimeToLive="180">
+    <bpmn:startEvent id="start" name="start">
+      <bpmn:outgoing>Flow_1u6snhk</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="haveAppointment" name="have_appointment">
+      <bpmn:incoming>Flow_1u6snhk</bpmn:incoming>
+      <bpmn:outgoing>noAppointment</bpmn:outgoing>
+      <bpmn:outgoing>yesAppointment</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="bookAppointment" name="book_appointment">
+      <bpmn:incoming>noAppointment</bpmn:incoming>
+      <bpmn:outgoing>Flow_1hls9dc</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_0huf2l7">
+      <bpmn:incoming>Flow_1hls9dc</bpmn:incoming>
+      <bpmn:incoming>Flow_1x3lgs3</bpmn:incoming>
+      <bpmn:outgoing>Flow_05ekba5</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="end" name="end">
+      <bpmn:incoming>Flow_05ekba5</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="goToWaitingRoom" name="go_to_waiting_room">
+      <bpmn:incoming>yesAppointment</bpmn:incoming>
+      <bpmn:outgoing>Flow_1pdjgop</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="goToDoctor" name="go_to_doctor">
+      <bpmn:incoming>Flow_1pdjgop</bpmn:incoming>
+      <bpmn:outgoing>Flow_1x3lgs3</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1u6snhk" sourceRef="start" targetRef="haveAppointment" />
+    <bpmn:sequenceFlow id="noAppointment" name="no_appointment" sourceRef="haveAppointment" targetRef="bookAppointment">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{!haveAppointment}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="yesAppointment" name="yes_appointment" sourceRef="haveAppointment" targetRef="goToWaitingRoom">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{haveAppointment}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1hls9dc" sourceRef="bookAppointment" targetRef="Gateway_0huf2l7" />
+    <bpmn:sequenceFlow id="Flow_1x3lgs3" sourceRef="goToDoctor" targetRef="Gateway_0huf2l7" />
+    <bpmn:sequenceFlow id="Flow_05ekba5" sourceRef="Gateway_0huf2l7" targetRef="end" />
+    <bpmn:sequenceFlow id="Flow_1pdjgop" sourceRef="goToWaitingRoom" targetRef="goToDoctor" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="demo_process">
+      <bpmndi:BPMNShape id="BPMNShape_0ou1qbs" bpmnElement="start">
+        <dc:Bounds x="152" y="122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="159" y="165" width="22" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_01kbs2s" bpmnElement="haveAppointment" isMarkerVisible="true">
+        <dc:Bounds x="238" y="115" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="221" y="85" width="88" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_094ibip" bpmnElement="bookAppointment">
+        <dc:Bounds x="393" y="100" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_16l8k1g" bpmnElement="Gateway_0huf2l7" isMarkerVisible="true">
+        <dc:Bounds x="648" y="115" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1gyh5bz" bpmnElement="end">
+        <dc:Bounds x="755" y="122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="764" y="165" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1ily4pw" bpmnElement="goToWaitingRoom">
+        <dc:Bounds x="393" y="213" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0rphn40" bpmnElement="goToDoctor">
+        <dc:Bounds x="600" y="213" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_1lwpeac" bpmnElement="Flow_1u6snhk">
+        <di:waypoint x="188" y="140" />
+        <di:waypoint x="238" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_0gi9g66" bpmnElement="noAppointment">
+        <di:waypoint x="288" y="140" />
+        <di:waypoint x="393" y="140" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="302" y="122" width="80" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_1f62uvy" bpmnElement="yesAppointment">
+        <di:waypoint x="263" y="165" />
+        <di:waypoint x="263" y="253" />
+        <di:waypoint x="393" y="253" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="237" y="206" width="85" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_136p3yy" bpmnElement="Flow_1hls9dc">
+        <di:waypoint x="493" y="140" />
+        <di:waypoint x="648" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_0zq7ytj" bpmnElement="Flow_1x3lgs3">
+        <di:waypoint x="650" y="213" />
+        <di:waypoint x="650" y="190" />
+        <di:waypoint x="673" y="190" />
+        <di:waypoint x="673" y="165" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_0v0u3k9" bpmnElement="Flow_05ekba5">
+        <di:waypoint x="698" y="140" />
+        <di:waypoint x="755" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_18p4zzs" bpmnElement="Flow_1pdjgop">
+        <di:waypoint x="493" y="253" />
+        <di:waypoint x="600" y="253" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
